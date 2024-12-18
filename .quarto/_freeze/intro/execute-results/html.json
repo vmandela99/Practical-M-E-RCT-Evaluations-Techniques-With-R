@@ -1,0 +1,17 @@
+{
+  "hash": "3f9925087f0632e0b4bb2d8426a2d9a4",
+  "result": {
+    "engine": "knitr",
+    "markdown": "![](Feeding1.png) Cover picture courtesy of Blessman International\n\n# Introduction  {.unnumbered}\n\nDesigning impactful program evaluations is crucial for understanding the effectiveness of interventions in various domains, including health, education, and welfare. While methodologies often overlap, the specific design and variables must be tailored to the context of the program being evaluated. This blog post takes inspiration from a health program evaluation dataset to construct a similar design for evaluating the impact of a **School Feeding Program (SFP)**.\n\nThe School Feeding Program aims to improve student outcomes by providing nutritious meals during school hours, potentially influencing attendance, retention, and overall well-being. By adapting the same evaluation framework used for health interventions, we can explore how carefully chosen variables capture the nuances of such educational programs. This blog post demonstrates how to replicate the evaluation framework by defining variables for outcomes, controls, and other program-specific characteristics, ensuring a one-to-one correspondence with the health program’s design. See @knuth84 for additional discussion of literate programming.\n\nThe R code to get the data is here:-\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# Loading of packages, data, and seed setting here\nlibrary(haven)\nlibrary(tidyverse)\nlibrary(broom)\nlibrary(estimatr)\nlibrary(fishmethods)\nlibrary(kableExtra)\nlibrary(MatchIt)\nlibrary(modelsummary)\nlibrary(pwr)\nlibrary(rddensity)\nlibrary(skimr)\nlibrary(texreg)\nlibrary(gtsummary)\n\n# you can read directly from github here --\ntrans_df <- read_csv(\"https://raw.githubusercontent.com/vmandela99/blog_vickman/refs/heads/main/posts/M%26E_01_School_Feeding_Causal_inference_%26_Counterfactuals/school_feeding.csv\")\n\ntheme_set(ggpubr::theme_pubclean())\n\n# subset data to only \"eligible\" units\ndf_elig <- trans_df %>%\n  filter(eligible == 1)\n```\n:::\n\n\nWhether you are a researcher, program implementer, or enthusiast in Monitoring and Evaluation (M&E), this approach equips you with a transferable method for evaluating interventions across various sectors. Let’s delve into how this framework is tailored for the School Feeding Program evaluation.\n",
+    "supporting": [
+      "intro_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

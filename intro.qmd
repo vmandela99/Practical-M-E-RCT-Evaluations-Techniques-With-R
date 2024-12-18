@@ -1,0 +1,37 @@
+![](Feeding1.png) Cover picture courtesy of Blessman International
+
+# Introduction  {.unnumbered}
+
+Designing impactful program evaluations is crucial for understanding the effectiveness of interventions in various domains, including health, education, and welfare. While methodologies often overlap, the specific design and variables must be tailored to the context of the program being evaluated. This blog post takes inspiration from a health program evaluation dataset to construct a similar design for evaluating the impact of a **School Feeding Program (SFP)**.
+
+The School Feeding Program aims to improve student outcomes by providing nutritious meals during school hours, potentially influencing attendance, retention, and overall well-being. By adapting the same evaluation framework used for health interventions, we can explore how carefully chosen variables capture the nuances of such educational programs. This blog post demonstrates how to replicate the evaluation framework by defining variables for outcomes, controls, and other program-specific characteristics, ensuring a one-to-one correspondence with the health program’s design. See @knuth84 for additional discussion of literate programming.
+
+The R code to get the data is here:-
+
+```{r, warning=FALSE, message=FALSE}
+# Loading of packages, data, and seed setting here
+library(haven)
+library(tidyverse)
+library(broom)
+library(estimatr)
+library(fishmethods)
+library(kableExtra)
+library(MatchIt)
+library(modelsummary)
+library(pwr)
+library(rddensity)
+library(skimr)
+library(texreg)
+library(gtsummary)
+
+# you can read directly from github here --
+trans_df <- read_csv("https://raw.githubusercontent.com/vmandela99/blog_vickman/refs/heads/main/posts/M%26E_01_School_Feeding_Causal_inference_%26_Counterfactuals/school_feeding.csv")
+
+theme_set(ggpubr::theme_pubclean())
+
+# subset data to only "eligible" units
+df_elig <- trans_df %>%
+  filter(eligible == 1)
+```
+
+Whether you are a researcher, program implementer, or enthusiast in Monitoring and Evaluation (M&E), this approach equips you with a transferable method for evaluating interventions across various sectors. Let’s delve into how this framework is tailored for the School Feeding Program evaluation.

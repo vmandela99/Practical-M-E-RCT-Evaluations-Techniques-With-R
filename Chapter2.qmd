@@ -1,0 +1,110 @@
+## Causal Inference and Counterfactuals
+
+Causal inference is the process of determining whether a program or intervention (like the School Feeding Program) directly causes a change in an outcome, such as improved school attendance. It goes beyond simple associations to uncover cause-and-effect relationships by comparing what happened with what could have happened if the program had not been implemented.
+
+The idea of **counterfactuals** lies at the heart of causal inference. A counterfactual refers to the hypothetical scenario of what would have occurred in the absence of the program. Since we cannot observe both the actual outcome and the counterfactual for the same household, researchers rely on rigorous study designs (such as randomized control trials) or statistical techniques to estimate the counterfactual and isolate the program’s impact.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Loading of packages, data, and seed setting here
+library(haven)
+library(tidyverse)
+library(broom)
+library(estimatr)
+library(fishmethods)
+library(kableExtra)
+library(MatchIt)
+library(modelsummary)
+library(pwr)
+library(rddensity)
+library(skimr)
+library(texreg)
+library(gtsummary)
+
+# you can read directly from github here --
+trans_df <- read_csv("https://raw.githubusercontent.com/vmandela99/blog_vickman/refs/heads/main/posts/M%26E_01_School_Feeding_Causal_inference_%26_Counterfactuals/school_feeding.csv")
+
+theme_set(ggpubr::theme_pubclean())
+
+# subset data to only "eligible" units
+df_elig <- trans_df %>%
+  filter(eligible == 1)
+```
+
+
+### **Before-After Designs**
+
+The first “expert” consultant you hire suggests that to estimate the impact of the School Feeding Program (SFP), you should calculate the change in student attendance rates over time for the schools where households enrolled in the program. The consultant argues that because SFP provides meals that alleviate hunger and improve student focus, any increase in attendance rates over time can be attributed to the program's effect.
+
+Using the subset of schools in treatment localities, you calculate their average student attendance rates before the implementation of the program and then again two years later. The analysis focuses on comparing the average attendance rates at baseline and follow-up to assess the program's impact in villages participating in the School Feeding Program.
+
+```{r}
+m_ba1 <- lm_robust(attendance_rate ~ round, 
+                   clusters = locality_identifier,
+                   data = trans_df %>% filter(treatment_locality==1 & enrolled ==1))
+
+
+m_ba2 <- lm_robust(attendance_rate ~ round + age_hh + age_sp + educ_hh + 
+                     educ_sp + female_hh + indigenous + hhsize + dirtfloor + 
+                     bathroom + land + school_distance, 
+                   clusters = locality_identifier,
+                   data = trans_df %>% filter(treatment_locality==1 & enrolled ==1))
+
+t0 <- tbl_regression(m_ba1, intercept = T)
+t01 <- tbl_regression(m_ba2, intercept = T)
+
+tbl_merge_m_ba <-
+  tbl_merge(
+    tbls = list(t0, t01),
+    tab_spanner = c("No Controls", "With Controls")
+  )
+
+tbl_merge_m_ba
+
+```
+
+**Does the before-and-after comparison control for all the factors that affect student attendance over time?**
+
+No, it is unlikely that this analysis accounts for all the factors influencing attendance. For instance, there could be other educational or health-related interventions occurring simultaneously in the communities receiving the School Feeding Program (SFP), which might also contribute to changes in attendance. Additionally, external factors like a regional economic crisis or natural disasters could have independently affected attendance. In the absence of SFP, attendance might have increased or decreased due to these factors, making it challenging to attribute all observed changes solely to the program.
+
+**Based on these results produced by the before-and-after analysis, should SFP be scaled up nationally?**
+
+No, based on the current results, scaling up the program nationally might not be justified yet. While the School Feeding Program appears to have improved average attendance rates, the increase of 5.7 percentage points may not be sufficient to meet the government's threshold for program effectiveness. Moreover, without understanding the contribution of confounding factors, it remains unclear whether the observed improvements are entirely due to the program.
+
+### **Enrolled vs. Non-Enrolled**
+
+Another consultant proposes a different approach, suggesting it would be more appropriate to estimate the counterfactual in the post-intervention period, two years after the program's start. The consultant correctly notes that of the 5,929 households in the baseline sample, only 2,907 enrolled in the School Feeding Program (SFP), leaving approximately 51 percent of households without access to SFP.
+
+The consultant argues that all schools within the 100 pilot villages were eligible to enroll in the program, with households in these communities sharing similar characteristics. For example, households rely on comparable school infrastructures, face similar regional conditions, and have children subject to the same school policies. Furthermore, economic activities and living standards within these localities are generally uniform.
+
+The consultant asserts that under such circumstances, attendance rates for households not enrolled in SFP after the intervention can reasonably estimate the counterfactual outcomes for those enrolled. Consequently, you decide to compare average student attendance rates in the post-intervention period for both groups—schools participating in the School Feeding Program and those that opted out.
+
+```{r}
+m_ene1 <- lm_robust(attendance_rate ~ enrolled, 
+                    clusters = locality_identifier,
+                    data = trans_df %>% filter(treatment_locality==1 & round ==1))
+
+m_ene2 <- lm_robust(attendance_rate ~ enrolled + age_hh + age_sp + educ_hh + 
+                      educ_sp + female_hh + indigenous + hhsize + dirtfloor + 
+                      bathroom + land + school_distance, 
+                    clusters = locality_identifier,
+                    data = trans_df %>% filter(treatment_locality==1 & round ==1))
+
+t0a <- tbl_regression(m_ene1, intercept = T)
+t0a1 <- tbl_regression(m_ene2, intercept = T)
+
+tbl_merge_m_ene <-
+  tbl_merge(
+    tbls = list(t0a, t0a1),
+    tab_spanner = c("No Controls", "With Controls")
+  )
+
+tbl_merge_m_ene
+```
+
+**Does this analysis likely control for all the factors that determine differences in student attendance between the enrolled and non-enrolled groups?**
+
+No, it is unlikely that the multivariate analysis fully controls for all the factors that influence the difference in attendance rates between the two groups. There could be unobservable factors that contribute to why some schools enroll in the feeding program while others do not. For instance, household preferences, school engagement levels, or the motivation of parents could play a role in determining which schools opt for the program. These factors may not be fully captured in the analysis.
+
+**Based on these results produced by the enrolled vs. non-enrolled method, should the School Feeding Program (SFP) be scaled up nationally?**
+
+Based strictly on the estimate from the multivariate linear regression, the SFP should not be scaled up nationally based on the findings here. The program increased average student attendance by 8.5%, which is a positive but modest improvement. While this result is statistically significant (p-value \< 0.001), it is lower than the expected national threshold improvement in attendance, suggesting that scaling up the program may not immediately achieve the desired outcomes at a larger scale. However, the modest effect size means that further investigation into the program’s impact across different contexts and regions is necessary to determine if it could contribute meaningfully to national efforts in improving student attendance.

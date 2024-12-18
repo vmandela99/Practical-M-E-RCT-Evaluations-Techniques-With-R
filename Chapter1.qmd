@@ -1,0 +1,75 @@
+## Variable Definitions
+
+In designing the evaluation framework for the **School Feeding Program (SFP)**, it is essential to define variables that align with the program’s goals and context. Below, we outline the variables categorized into **Outcome Variables**, **Control Variables**, and **Other Variables**, ensuring they mirror the structure of a health program evaluation dataset.
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+# Loading of packages, data, and seed setting here
+library(haven)
+library(tidyverse)
+library(broom)
+library(estimatr)
+library(fishmethods)
+library(kableExtra)
+library(MatchIt)
+library(modelsummary)
+library(pwr)
+library(rddensity)
+library(skimr)
+library(texreg)
+library(gtsummary)
+
+# you can read directly from github here --
+trans_df <- read_csv("https://raw.githubusercontent.com/vmandela99/blog_vickman/refs/heads/main/posts/M%26E_01_School_Feeding_Causal_inference_%26_Counterfactuals/school_feeding.csv")
+
+theme_set(ggpubr::theme_pubclean())
+
+# subset data to only "eligible" units
+df_elig <- trans_df %>%
+  filter(eligible == 1)
+```
+
+### **Outcome Variable**
+
+This variable measures the primary goal of the SFP: improving school attendance.
+
+| **Variable**        | **Description**                                           |
+|-----------------------|-------------------------------------------------|
+| **attendance_rate** | Average student attendance rate per school term (percent) |
+
+### **Control Variables**
+
+These variables account for household and socio-economic factors that might influence school attendance or participation in the program.
+
+| **Variable**   | **Description**                                                       |
+|---------------------|---------------------------------------------------|
+| **age_hh**     | Age of the head of the household (in years)                           |
+| **age_sp**     | Age of the spouse (in years)                                          |
+| **educ_hh**    | Education of the head of the household (completed years of schooling) |
+| **educ_sp**    | Education of the spouse (completed years of schooling)                |
+| **female_hh**  | Head of the household is a woman (0=no, 1=yes)                        |
+| **indigenous** | Head of household speaks an indigenous language (0=no, 1=yes)         |
+| **hhsize**     | Number of household members (baseline)                                |
+| **dirtfloor**  | Home has a dirt floor at baseline (0=no, 1=yes)                       |
+| **bathroom**   | Home with private bathroom at baseline (0=no, 1=yes)                  |
+| **land**       | Number of hectares of land owned by household at baseline             |
+
+### **Other Variables**
+
+These variables define the experimental design, program eligibility, and participation details.
+
+| **Variable**             | **Description**                                                                         |
+|----------------------|--------------------------------------------------|
+| **locality_identifier**  | Locality identifier                                                                     |
+| **household_identifier** | Unique household identifier                                                             |
+| **treatment_locality**   | School is in a locality with the feeding program (0=no, 1=yes)                          |
+| **promotion_locality**   | School is in a locality where the feeding program was promoted (0=no, 1=yes)            |
+| **eligible**             | Household is eligible for the feeding program (0=no, 1=yes)                             |
+| **enrolled**             | Child is enrolled in the feeding program (0=no, 1=yes)                                  |
+| **enrolled_rp**          | Child enrolled in the feeding program under the random promotion scenario (0=no, 1=yes) |
+| **poverty_index**        | Poverty Index 1-100                                                                     |
+| **round**                | Survey round (0=baseline; 1=follow-up)                                                  |
+| **hospital**             | HH member visited hospital in the past year (0=no, 1=yes)                               |
+
+This comprehensive set of variables enables a detailed analysis of the program’s impact while controlling for household-level differences and program design elements. By aligning the variable structure with the program’s objectives, we can effectively measure the success of the intervention and uncover insights for future implementation.
+
+## 

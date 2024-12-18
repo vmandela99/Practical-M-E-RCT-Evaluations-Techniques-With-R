@@ -1,0 +1,34 @@
+project:
+  type: book
+
+book:
+  title: "Practical M&E RCT Evaluations Techniques With R"
+  author: "Victor Mandela Mokaya"
+  cover-image: "images/cover.jpg"
+  date: "18/12/2024"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - Chapter1.qmd
+    - Chapter2.qmd
+    - Chapter3.qmd
+    - Chapter4.qmd
+    - Chapter5.qmd
+    - Chapter6.qmd
+    # - summary.qmd
+    - references.qmd
+execute:
+   merge: true
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+    cover-image: images/cover.jpg
+  pdf:
+    documentclass: scrreprt
+    cover-image: images/cover.jpg
+
+editor: visual
+

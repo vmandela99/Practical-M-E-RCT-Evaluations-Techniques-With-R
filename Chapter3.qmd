@@ -1,0 +1,129 @@
+## Randomized Assignment
+
+**Random Assignment** in the context of our school feeding program evaluation means that households or communities are randomly assigned to either the treatment group (where they receive the feeding program) or the control group (where they do not). This random assignment ensures that every participant has an equal chance of being placed in either group, making it more likely that the groups are similar at the start of the study. As a result, any differences in outcomes, such as changes in children's health or learning outcomes, can be attributed to the school feeding program itself, rather than other external factors. This method strengthens the validity of our findings and helps ensure that the observed impacts are genuinely due to the program intervention.
+
+The key is to find a group of villages that are very similar to the 100 treatment villages, except for the fact that one group participated in the school feeding program and the other did not. Since the treatment villages were randomly selected from the pool of rural villages, they should, on average, have similar characteristics to those villages that did not participate in the program.
+
+To improve the counterfactual estimate, we utilize an additional 100 rural villages that were not part of the feeding program. These comparison villages were also randomly selected, ensuring that they share similar characteristics with the treatment villages at the outset of the program. The random assignment of the program ensures that any differences in outcomes (e.g., improvements in children's nutrition or learning) between the treatment and comparison villages can be attributed to the program, not external factors.
+
+To validate this assumption, we would need to test whether the characteristics of eligible households in both the treatment and comparison villages were similar at the baseline, ensuring that no major differences existed before the program began. If the characteristics are similar, it further supports the idea that the program's effects are due to the intervention itself rather than other external factors.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+# Loading of packages, data, and seed setting here
+library(haven)
+library(tidyverse)
+library(broom)
+library(estimatr)
+library(fishmethods)
+library(kableExtra)
+library(MatchIt)
+library(modelsummary)
+library(pwr)
+library(rddensity)
+library(skimr)
+library(texreg)
+library(gtsummary)
+
+# you can read directly from github here --
+trans_df <- read_csv("https://raw.githubusercontent.com/vmandela99/blog_vickman/refs/heads/main/posts/M%26E_01_School_Feeding_Causal_inference_%26_Counterfactuals/school_feeding.csv")
+
+theme_set(ggpubr::theme_pubclean())
+
+# subset data to only "eligible" units
+df_elig <- trans_df %>%
+  filter(eligible == 1)
+```
+
+```{r}
+df_elig <- trans_df %>%
+  filter(eligible == 1) 
+
+df_elig %>% 
+  filter(round == 0) %>%
+  dplyr::select(treatment_locality, locality_identifier,
+                age_hh, age_sp, educ_hh, educ_sp, female_hh, indigenous, 
+                hhsize, dirtfloor, bathroom, land, school_distance) %>%
+  tidyr::pivot_longer(-c("treatment_locality","locality_identifier")) %>%
+  group_by(name) %>%
+  do(tidy(lm_robust(value ~ treatment_locality, data = .))) %>%
+  filter(term == "treatment_locality") %>%
+  dplyr::select(name, estimate, std.error, p.value) %>%
+  kable()
+
+```
+
+The average characteristics of households in both the treatment and comparison villages appear very similar. Among the various variables tested, the only statistically significant differences are in the number of years of education of the head of household and the distance to the nearest school, which are relatively small in magnitude. Specifically, the difference in the education of the household head is 0.16 years (which is less than 6% of the average years of education in the comparison group), and the difference in the distance to school is 2.91 kilometers (less than 3% of the comparison group’s average distance). These differences are statistically significant, but small, indicating that the two groups are quite similar in terms of key demographic factors.
+
+Even in a randomized experiment involving a large sample, small differences can occur by chance due to the nature of statistical tests. In fact, using a typical 5% significance level, we would expect some differences in around 5% of the characteristics simply due to random variability. Therefore, although small statistically significant differences exist, the overall similarity between the two groups suggests that the random assignment was effective and that the treatment and comparison groups are comparable for the evaluation of the feeding program's impact.
+
+**Estimate the average attendance rate for eligible households in the treatment and comparison villages for each period. What is the impact of the program?**
+
+```{r}
+out_round0 <- lm_robust(attendance_rate ~ treatment_locality,
+                        data = df_elig %>% filter(round == 0),
+                        clusters = locality_identifier)
+out_round1 <- lm_robust(attendance_rate ~ treatment_locality,
+                        data = df_elig %>% filter(round == 1),
+                        clusters = locality_identifier)
+
+t0b <- tbl_regression(out_round0, intercept = T)
+t0b1 <- tbl_regression(out_round1, intercept = T)
+
+tbl_merge_m_ba1 <-
+  tbl_merge(
+    tbls = list(t0b, t0b1),
+    tab_spanner = c("Baseline", "Follow Up")
+  )
+
+tbl_merge_m_ba1
+```
+
+At baseline, there is no statistically significant difference in the average characteristics between the treatment and comparison groups. This confirms that the groups are similar, as expected under randomized assignment. The baseline results show that the treatment locality (the area receiving the feeding program) does not significantly differ from the comparison group in terms of the outcome measure (Beta = 0.07, p-value = 0.7).
+
+At follow-up, however, the treatment locality shows a statistically significant and positive effect on the outcome measure, with a beta coefficient of 8.7 (p-value \< 0.001). This indicates that households in the treatment locality saw a notable improvement compared to those in the comparison villages. Specifically, the intervention appears to have resulted in an increase in the outcome, possibly reflecting the positive effects of the feeding program, given the substantial change in the beta coefficient.
+
+The impact of the program is therefore evident in the follow-up period, and the reduction in the treatment and comparison villages' differences shows a clear program effect, with an estimated increase of 8.7 units on the attendance rate, which is statistically significant.
+
+Thus, these findings support the conclusion that the feeding program had a positive impact on the target population over the course of the study period.
+
+**Re-estimate using a multivariate regression analysis that controls for the other observable characteristics of the sample households. How does your impact estimate change?**
+
+```{r}
+out_round1_nocov <- lm_robust(attendance_rate ~ treatment_locality,
+                              data = df_elig %>% filter(round == 1),
+                              clusters = locality_identifier)
+out_round1_wcov <- lm_robust(attendance_rate ~ treatment_locality +
+                               age_hh + age_sp + educ_hh + educ_sp + 
+                               female_hh + indigenous + hhsize + dirtfloor + 
+                               bathroom + land + school_distance,
+                             data = df_elig %>% filter(round == 1),
+                             clusters = locality_identifier)
+t2 <- tbl_regression(out_round1_nocov, intercept = T)
+t3 <- tbl_regression(out_round1_wcov, intercept = T)
+
+tbl_merge_out_round1 <-
+  tbl_merge(
+    tbls = list(t2, t3),
+    tab_spanner = c("**No Covariate Adjust.**", "**With Covariate Adjust.**")
+  )
+
+tbl_merge_out_round1
+```
+
+**Without Covariate Adjustment:**\
+At the baseline, the coefficient for the treatment locality is 8.7 (with a 95% confidence interval of 8.0 to 9.4), which is statistically significant (p-value \< 0.001). This suggests that, without adjusting for other factors, the households in the treatment locality (those receiving the feeding program) exhibit a significant improvement compared to those in the comparison group.
+
+**With Covariate Adjustment:**\
+When adjusting for other observable characteristics such as age, education, and household size, the coefficient for the treatment locality is slightly reduced to 8.6 (95% CI: 8.0 to 9.2) but remains statistically significant (p-value \< 0.001). This indicates that even when accounting for factors like age, education, and household characteristics, the treatment locality still shows a strong and positive effect, with the intervention leading to a substantial improvement in the outcome measure.
+
+### Why is the Impact Estimate Unchanged with Covariate Adjustment?
+
+The treatment effect remains nearly unchanged when controlling for additional factors because of the randomized assignment. Randomization ensures that the treatment and comparison groups are very similar in characteristics at baseline, and external factors affecting the outcome should affect both groups equally over time. Therefore, any changes observed in the treatment locality compared to the comparison group can confidently be attributed to the feeding program rather than differences in baseline characteristics or external influences.
+
+### Conclusion on the Program's Impact
+
+Given that the estimated impact remains consistent even after controlling for additional characteristics, it is clear that the feeding program has a significant positive effect on the target population. The treatment group shows a noticeable improvement in outcomes, and this improvement is robust to covariate adjustments.
+
+### Should the Feeding Program Be Scaled Up?
+
+Yes, the feeding program should be scaled up. The impact on the outcome measure is statistically significant and substantial. The effect of the intervention, even after accounting for other factors, supports the case for expanding the program to other regions to improve the well-being of households in similar circumstances.
