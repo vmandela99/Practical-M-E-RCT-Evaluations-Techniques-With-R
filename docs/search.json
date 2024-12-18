@@ -88,5 +88,15 @@
     "crumbs": [
       "References"
     ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Practical M&E RCT Evaluations Techniques With R",
+    "section": "",
+    "text": "Preface\nThe field of Monitoring and Evaluation (M&E) is at the heart of understanding and improving the efficacy of interventions across diverse domains such as health, education, and social welfare. Over the years, the need for robust and context-sensitive evaluation frameworks has grown exponentially, as stakeholders demand tangible and evidence-based outcomes.\nThis book, Practical M&E RCT Evaluations Techniques With R, emerges from my personal journey and professional engagements in the M&E space. Inspired by real-world challenges and successes, it is designed to bridge the gap between theory and practice. By focusing on replicable frameworks, data-driven insights, and the nuances of program contexts, I aim to provide readers with actionable tools for crafting impactful evaluations.\nI extend my heartfelt gratitude to the many organizations, collaborators, and mentors who have shaped my understanding of M&E. I also wish to thank Blessman International for providing the cover image, which captures the essence of the community-driven efforts this book seeks to support.\nWhether you are a student, researcher, program implementer, or policy advocate, this book offers a practical and adaptable approach to designing evaluations that inform and inspire change. Together, let us leverage the power of evaluation to create meaningful and sustainable impacts.\nSincerely,\nVictor Mandela Mokaya,\nStatistics Expert",
+    "crumbs": [
+      "Preface"
+    ]
   }
 ]
