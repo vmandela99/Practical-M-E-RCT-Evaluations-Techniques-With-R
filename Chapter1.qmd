@@ -1,3 +1,8 @@
+---
+comment:
+    disqus: victormandela
+---
+
 ## Variable Definitions
 
 In designing the evaluation framework for the **School Feeding Program (SFP)**, it is essential to define variables that align with the program’s goals and context. Below, we outline the variables categorized into **Outcome Variables**, **Control Variables**, and **Other Variables**, ensuring they mirror the structure of a health program evaluation dataset.
@@ -33,7 +38,7 @@ df_elig <- trans_df %>%
 This variable measures the primary goal of the SFP: improving school attendance.
 
 | **Variable**        | **Description**                                           |
-|---------------------|-----------------------------------------------------------|
+|-----------------------|------------------------------------------------|
 | **attendance_rate** | Average student attendance rate per school term (percent) |
 
 ### **Control Variables**
@@ -41,7 +46,7 @@ This variable measures the primary goal of the SFP: improving school attendance.
 These variables account for household and socio-economic factors that might influence school attendance or participation in the program.
 
 | **Variable**   | **Description**                                                       |
-|----------------|-----------------------------------------------------------------------|
+|----------------------|--------------------------------------------------|
 | **age_hh**     | Age of the head of the household (in years)                           |
 | **age_sp**     | Age of the spouse (in years)                                          |
 | **educ_hh**    | Education of the head of the household (completed years of schooling) |
@@ -58,7 +63,7 @@ These variables account for household and socio-economic factors that might infl
 These variables define the experimental design, program eligibility, and participation details.
 
 | **Variable**             | **Description**                                                                         |
-|--------------------------|-----------------------------------------------------------------------------------------|
+|----------------------|-------------------------------------------------|
 | **locality_identifier**  | Locality identifier                                                                     |
 | **household_identifier** | Unique household identifier                                                             |
 | **treatment_locality**   | School is in a locality with the feeding program (0=no, 1=yes)                          |
