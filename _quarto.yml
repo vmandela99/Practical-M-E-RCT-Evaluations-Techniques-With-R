@@ -18,6 +18,8 @@ book:
     - Chapter6.qmd
     # - summary.qmd
     - references.qmd
+comment:
+  disqus: victormandela
 execute:
    merge: true
 
