@@ -1,5 +1,6 @@
 project:
   type: book
+  output-dir: docs
 
 book:
   title: "Practical M&E RCT Evaluations Techniques With R"
