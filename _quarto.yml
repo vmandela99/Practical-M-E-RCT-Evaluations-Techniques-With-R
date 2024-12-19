@@ -6,7 +6,7 @@ book:
   title: "Practical M&E RCT Evaluations Techniques With R"
   author: "Victor Mandela Mokaya"
   cover-image: "images/cover.jpg"
-  date: "18/12/2024"
+  date: "2024-12-18"
   chapters:
     - index.qmd
     - intro.qmd
